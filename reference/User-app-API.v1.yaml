@@ -1,0 +1,974 @@
+openapi: 3.0.0
+info:
+  title: User API
+  version: '1.0'
+  description: ''
+servers:
+  - url: 'https://www.foodfuels.com/api'
+paths:
+  /users/sign_in:
+    post:
+      summary: Log In via email/password
+      operationId: post-users-sign_in
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token_type:
+                    type: string
+                    description: bearer
+                  access_token:
+                    type: string
+                required:
+                  - user
+                  - token_type
+                  - access_token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_id:
+                  type: string
+                  description: client id
+                client_secret:
+                  type: string
+                  description: client secret key
+                email:
+                  type: string
+                  description: user email
+                password:
+                  type: string
+                  description: SHA256 encrypted string
+              required:
+                - client_id
+                - client_secret
+                - email
+                - password
+            examples: {}
+      description: ''
+  /users/sign_up:
+    post:
+      summary: Sign Up
+      operationId: post-users-sign_up
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token_type:
+                    type: string
+                  access_token:
+                    type: string
+                required:
+                  - user
+                  - token_type
+                  - access_token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                'user[first_name]':
+                  type: string
+                'user[last_name]':
+                  type: string
+                client_id:
+                  type: string
+                client_secret:
+                  type: string
+                password:
+                  type: string
+                  description: SHA256 encrypted string
+                email:
+                  type: string
+              required:
+                - 'user[first_name]'
+                - 'user[last_name]'
+                - client_id
+                - client_secret
+                - password
+                - email
+  /weights/my:
+    get:
+      summary: Get user weights
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+      operationId: get-weights-my
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      description: ''
+  /meal_plans/my:
+    get:
+      summary: Get user MealPlan
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserMealPlan'
+      operationId: get-meal_plans-my
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  /meal_plans/my/days:
+    get:
+      summary: Get user MealPlan days
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MealPlanDay'
+                required:
+                  - items
+      operationId: get-meal_plans-my-days
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      description: ''
+  /users/sign_out:
+    delete:
+      summary: Logout
+      operationId: delete-users-sign_out
+      responses:
+        '200':
+          description: OK
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  /users/me:
+    delete:
+      summary: Delete account
+      operationId: delete-users-me
+      responses:
+        '200':
+          description: OK
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  /weights:
+    delete:
+      summary: Delete all user weights
+      operationId: delete-weights
+      responses:
+        '200':
+          description: OK
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      description: ''
+  /users/reset_password:
+    post:
+      summary: Forgot password
+      operationId: post-users-reset_password
+      responses:
+        '200':
+          description: OK
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+              required:
+                - email
+  /payments/unsubscribe:
+    post:
+      summary: Cancel user subscribtion
+      operationId: post-payments-unsubscribe
+      responses:
+        '200':
+          description: OK
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  /users/facebook_sign_in:
+    post:
+      summary: Login via Facebook
+      operationId: post-users-facebook_sign_in
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token_type:
+                    type: string
+                    description: bearer
+                  access_token:
+                    type: string
+                required:
+                  - user
+                  - token_type
+                  - access_token
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: user email
+                client_secret:
+                  type: string
+                  description: client secret key
+                client_id:
+                  type: string
+                  description: client id
+                facebook_id:
+                  type: string
+                  description: user facebook id from FacebookSDS
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+              required:
+                - email
+                - client_secret
+                - client_id
+                - facebook_id
+            examples: {}
+      description: ''
+  /coaches:
+    get:
+      summary: Get a list of all coaches
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Coach'
+      operationId: get-coaches
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  '/coaches/{coach_id}/choose/':
+    get:
+      summary: Assign selected coach to user
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chat_room_id:
+                    type: integer
+      operationId: get-coaches-(coachId)-choose
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+    parameters:
+      - schema:
+          type: integer
+        name: coach_id
+        in: path
+        required: true
+        description: |
+          coach id
+  /remove_coach:
+    get:
+      summary: Remove coach from user
+      tags: []
+      responses:
+        '200':
+          description: OK
+      operationId: get-remove_coach
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      description: ''
+  '/recipes/{recipe_Id}/like':
+    get:
+      summary: Recipe like
+      tags: []
+      responses:
+        '200':
+          description: OK
+      operationId: get-recipes-(recipeId)-like
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      description: Like action
+    parameters:
+      - schema:
+          type: integer
+        name: recipe_Id
+        in: path
+        required: true
+    delete:
+      summary: Recipe dislike
+      operationId: delete-recipes-recipe_Id-like
+      responses:
+        '200':
+          description: OK
+      description: Dislike action
+  /meal_plans:
+    get:
+      summary: Get all meal plans
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MealPlan'
+      operationId: get-meal_plans
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  '/meal_plans/{meal_plan_id}':
+    parameters:
+      - schema:
+          type: string
+        name: meal_plan_id
+        in: path
+        required: true
+    get:
+      summary: Get meal plan details
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MealPlan'
+      operationId: get-meal_plans-mealPlanId
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  '/meal_plans/{meal_plan_id}/choose':
+    parameters:
+      - schema:
+          type: integer
+        name: meal_plan_id
+        in: path
+        required: true
+    get:
+      summary: Assign Meal Plan to a user
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserMealPlan'
+      operationId: get-meal_plans-meal_plan_id-choose
+      description: ''
+  /meal_plan/set_start_day:
+    post:
+      summary: Set a start date for the user Meal Plan
+      operationId: post-meal_plan-set_start_day
+      responses:
+        '200':
+          description: OK
+      description: ''
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                set_start_day:
+                  type: string
+                  description: 'date in format "MM/dd/yyyy"'
+              required:
+                - set_start_day
+  '/personal_recipes/{meal_id}/{user_id}':
+    parameters:
+      - schema:
+          type: integer
+        name: meal_id
+        in: path
+        required: true
+      - schema:
+          type: integer
+        name: user_id
+        in: path
+        required: true
+    get:
+      summary: Get user meal plan recipe details
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Meal'
+      operationId: get-personal_recipes-meal_id
+  '/recipes/{recipe_id}':
+    get:
+      summary: Get Recipe details
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Meal'
+      operationId: get-recipes
+      description: ''
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+    parameters:
+      - schema:
+          type: integer
+        name: recipe_id
+        in: path
+        required: true
+  /recipes:
+    get:
+      summary: Get a list of all recipes
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    type: object
+                    description: "can be nil if query params contains 'q[name_cont]'"
+                    properties:
+                      current_page:
+                        type: integer
+                      total_pages:
+                        type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Meal'
+                required:
+                  - items
+      operationId: get-recipes
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: page
+          required: true
+          description: pagination loading page number
+        - schema:
+            type: string
+            enum:
+              - favorite
+          in: query
+          name: filter
+        - schema:
+            type: string
+          in: query
+          name: 'q[name_cont]'
+          description: meal name for search
+        - schema:
+            type: string
+          in: query
+          name: serving_size
+          description: serving size filter
+        - schema:
+            type: integer
+          in: query
+          name: 'q[category_id_in][]'
+          description: filter by categories
+    parameters: []
+  /categories:
+    get:
+      summary: Get all meals Categories
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MealCategoty'
+      operationId: get-categories
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      description: ''
+  '/user_recipes/{user_meal_id}/change':
+    parameters:
+      - schema:
+          type: integer
+        name: user_meal_id
+        in: path
+        required: true
+    post:
+      summary: ''
+      operationId: post-user_recipes-user_meal_id-change
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserMeal'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_recipe_id:
+                  type: integer
+              required:
+                - new_recipe_id
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      description: ''
+  /meal_plans/my/destroy:
+    get:
+      summary: Remove user Meal Plan
+      tags: []
+      responses:
+        '200':
+          description: OK
+      operationId: get-meal_plans-my-destroy
+      description: ''
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  '/personal_recipes/marked/{meal_Id}':
+    parameters:
+      - schema:
+          type: integer
+        name: meal_Id
+        in: path
+        required: true
+    get:
+      summary: Toggle checkbox mark of eate
+      tags: []
+      responses:
+        '200':
+          description: OK
+      operationId: get-personal_recipes-marked-meal_Id
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+components:
+  schemas:
+    User:
+      title: User
+      type: object
+      x-examples: {}
+      properties:
+        id:
+          type: number
+        coach:
+          $ref: '#/components/schemas/Coach'
+        water:
+          type: integer
+        after_wake_up_time:
+          type: string
+        subscribed:
+          type: boolean
+        steps:
+          type: integer
+        meal_plan_start_day:
+          type: string
+        referred_by:
+          type: string
+        referral_count:
+          type: integer
+        referral_code:
+          type: string
+        perfect_days:
+          type: number
+        expiration_day:
+          type: string
+        user_meal_plan_start_date:
+          type: string
+        last_sign_in_at:
+          type: string
+        isMarkedWaterGoal:
+          type: boolean
+        initial_weight:
+          type: number
+        meal_plan:
+          type: boolean
+        go_weight:
+          type: number
+        customer_type:
+          type: string
+        chat_room_id:
+          type: number
+        postalCode:
+          type: number
+        phoneNumber:
+          type: string
+        user_role:
+          type: string
+        last_name:
+          type: string
+        incognito:
+          type: boolean
+        gender:
+          type: boolean
+        first_name:
+          type: string
+        email:
+          type: string
+        birthday:
+          type: string
+        avatar:
+          type: string
+      required:
+        - id
+        - user_role
+        - last_name
+        - gender
+        - first_name
+        - email
+    Nutrition:
+      title: Nutrition
+      type: object
+      description: ''
+      properties:
+        id:
+          type: integer
+        icon:
+          type: string
+          description: icon url path
+        name:
+          type: string
+        value:
+          type: string
+      required:
+        - id
+        - icon
+        - name
+        - value
+    Meal:
+      title: Meal
+      type: object
+      properties:
+        id:
+          type: integer
+        cover_image:
+          type: string
+        liked:
+          type: boolean
+        likes_count:
+          type: integer
+        name:
+          type: string
+        serving_size:
+          type: string
+        after_wake_up_time:
+          type: integer
+          description: TimeInterval in seconds
+        comments_counter:
+          type: integer
+        description:
+          type: string
+        instructions:
+          type: string
+        preparation_time:
+          type: string
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/MealCategoty'
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ingredient'
+      required:
+        - id
+    MealPlan:
+      title: MealPlan
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        text:
+          type: string
+        cover_image:
+          type: string
+        macronutriens:
+          type: array
+          items:
+            $ref: '#/components/schemas/Nutrition'
+        micronutriens:
+          type: array
+          items:
+            $ref: '#/components/schemas/Nutrition'
+        main_dishes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Meal'
+    Coach:
+      title: Coach
+      type: object
+      properties:
+        id:
+          type: number
+        avatar:
+          type: string
+        super_coach:
+          type: boolean
+        tag_line:
+          type: string
+        welcome_message:
+          type: string
+        last_name:
+          type: string
+        first_name:
+          type: string
+        about:
+          type: string
+        intensity:
+          type: number
+        coach_level:
+          type: number
+      required:
+        - id
+    UserMealPlan:
+      title: UserMealPlan
+      type: object
+      properties:
+        id:
+          type: integer
+        main_dishes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Meal'
+        cover_image:
+          type: string
+        text:
+          type: string
+        name:
+          type: string
+        day_number:
+          type: integer
+        display_day_number:
+          type: integer
+        start_day:
+          type: string
+          description: 'date in format "MM/dd/yyyy"'
+        days:
+          type: array
+          items:
+            $ref: '#/components/schemas/MealPlanDay'
+        user:
+          $ref: '#/components/schemas/User'
+    MealPlanDay:
+      title: MealPlanDay
+      type: object
+      properties:
+        id:
+          type: integer
+        day_number:
+          type: integer
+        meal_plan:
+          $ref: '#/components/schemas/UserMealPlan'
+        recipes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Meal'
+      required:
+        - id
+        - day_number
+        - meal_plan
+    UserWeight:
+      title: UserWeight
+      type: object
+      properties:
+        id:
+          type: integer
+        created_at:
+          type: string
+          description: 'date in format "MM/dd/yyyy"'
+        followed_plan:
+          type: boolean
+        value:
+          type: number
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+        - id
+        - created_at
+        - followed_plan
+    UserMeal:
+      title: UserMeal
+      type: object
+      properties:
+        id:
+          type: string
+    MealCategoty:
+      title: MealCategoty
+      type: object
+      properties:
+        id:
+          type: string
+    Ingredient:
+      title: Ingredient
+      type: object
+      properties:
+        id:
+          type: integer
+        bought:
+          type: boolean
+        measure:
+          type: string
+        name:
+          type: string
+        value:
+          type: number
+        meal:
+          $ref: '#/components/schemas/Meal'
+      required:
+        - id
