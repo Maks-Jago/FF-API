@@ -198,6 +198,76 @@ paths:
           name: Authorization
           required: true
           description: bearer access_token
+    get:
+      summary: Get user profile
+      operationId: get-users-me
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+    post:
+      summary: Update user ptofile
+      operationId: post-users-me
+      responses:
+        '200':
+          description: OK
+      description: ''
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                'customer_data[incognito]':
+                  type: boolean
+                'user[first_name]':
+                  type: string
+                'user[phone_number]':
+                  type: string
+                'user[birthday]':
+                  type: string
+                  description: 'date in format "MM/dd/yyyy"'
+                'user[gender]':
+                  type: integer
+                  description: '0 - female, 1 - male'
+                'user[go_weight]':
+                  type: number
+                'user[initial_weight]':
+                  type: number
+                'user[after_wake_up_time]':
+                  type: string
+                  description: TimeInterval in seconds
+                'user[password]':
+                  type: string
+                  description: 'User new password, sha256 encrypted string'
+                'user[current_password]':
+                  type: string
+                  description: sha256 encrypted string
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                'user[avatar]':
+                  description: 'Multipart image uploading, key "user[avatar]", mimeType: "image/jpeg", fileName: "image/jpeg"'
+            examples: {}
+        description: ''
   /weights:
     delete:
       summary: Delete all user weights
@@ -213,6 +283,36 @@ paths:
           required: true
           description: bearer access_token
       description: ''
+    post:
+      summary: Create or update user weight for today or selected date
+      operationId: post-weights
+      responses:
+        '200':
+          description: OK
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                'weight[value]':
+                  type: number
+                'weight[followed_plan]':
+                  type: boolean
+                'weight[date]':
+                  type: string
+                  description: 'date in format "MM/dd/yyyy"'
+              required:
+                - 'weight[value]'
+                - 'weight[followed_plan]'
+        description: ''
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
   /users/reset_password:
     post:
       summary: Forgot password
@@ -572,7 +672,7 @@ paths:
                       $ref: '#/components/schemas/Meal'
                 required:
                   - items
-      operationId: get-recipes
+      operationId: get-all-recipes
       parameters:
         - schema:
             type: integer
@@ -601,6 +701,7 @@ paths:
           in: query
           name: 'q[category_id_in][]'
           description: filter by categories
+      description: ''
     parameters: []
   /categories:
     get:
@@ -632,7 +733,7 @@ paths:
         in: path
         required: true
     post:
-      summary: ''
+      summary: Replace user recipe in Meal Plan
       operationId: post-user_recipes-user_meal_id-change
       responses:
         '200':
@@ -696,6 +797,329 @@ paths:
           name: Authorization
           required: true
           description: bearer access_token
+  /shopping_list:
+    get:
+      summary: Get user shoping list
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  weeks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ShoppingList'
+      operationId: get-shopping_list
+      description: ''
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  '/shopping_list/bue_ingredient/{ingredient_id}':
+    parameters:
+      - schema:
+          type: integer
+        name: ingredient_id
+        in: path
+        required: true
+    post:
+      summary: Update bought state for ingredient in user shoping list
+      operationId: post-shopping_list-bue_ingredient-ingredientId
+      responses:
+        '200':
+          description: OK
+      description: ''
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bought:
+                  type: boolean
+  /reassignCoach:
+    get:
+      summary: Reassign coach to the user
+      tags: []
+      responses:
+        '200':
+          description: OK
+      operationId: get-reassignCoach
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  /chat_room:
+    get:
+      summary: Get user chat room id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chat_room_id:
+                    type: integer
+      operationId: get-chat_room
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  /weights/introduced_today:
+    get:
+      summary: Get - is user already inputted his weight today
+      tags: []
+      responses:
+        '200':
+          description: OK
+      operationId: get-weights-introduced_today
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      description: ''
+  /weights/statistics:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  weights:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserWeight'
+      operationId: get-weights-statistics
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  /users/markedWaterGoal:
+    get:
+      summary: Toggle water checkbox
+      tags: []
+      responses:
+        '200':
+          description: OK
+      operationId: get-users-markedWaterGoal
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  '/chat_rooms/{chat_id}/messages':
+    parameters:
+      - schema:
+          type: string
+        name: chat_id
+        in: path
+        required: true
+    get:
+      summary: Get Messages
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+                  pagination:
+                    type: object
+                    description: "can be nil if query params contains 'q[name_cont]'"
+                    properties:
+                      current_page:
+                        type: integer
+                      total_pages:
+                        type: integer
+                required:
+                  - items
+      operationId: get-chat_rooms-chat_id-messages
+      description: ''
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+        - schema:
+            type: integer
+          in: query
+          name: page
+          description: pagination page number
+        - schema:
+            type: boolean
+          in: query
+          name: ignore_read
+    post:
+      summary: Post Image to Chat
+      operationId: post-chat_rooms-chat_id-messages
+      responses:
+        '200':
+          description: OK
+      description: ''
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          description: bearer access_token
+          required: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                'message[image]':
+                  description: 'Multipart image uploading, key "user[avatar]", mimeType: "image/jpeg", fileName: "image/jpeg"'
+        description: ''
+  /devices:
+    post:
+      summary: Post user device token
+      operationId: post-devices
+      responses:
+        '200':
+          description: OK
+      description: ''
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                'device[device_token]':
+                  type: string
+              required:
+                - 'device[device_token]'
+  '/feed_notifications/{id}':
+    get:
+      summary: Get list of notifications
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+      operationId: get-feed_notifications
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      description: ''
+    delete:
+      summary: Delete notification
+      operationId: delete-feed_notifications
+      responses:
+        '200':
+          description: OK
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      description: ''
+    parameters:
+      - schema:
+          type: integer
+        name: id
+        in: path
+  /leaders:
+    get:
+      summary: Get leaderboard list
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: ''
+                  user_place:
+                    type: integer
+                  user_weight_lost_percent:
+                    type: number
+                required:
+                  - items
+      operationId: 'get-leaders?period=-(filter)&page=-(page)'
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: period
+          required: true
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+        - schema:
+            type: integer
+          in: query
+          name: page
+          required: true
+      description: ''
+    parameters: []
 components:
   schemas:
     User:
@@ -947,12 +1371,53 @@ components:
       type: object
       properties:
         id:
+          type: integer
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ingredient'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/MealCategoty'
+        preparation_time:
           type: string
+        instructions:
+          type: string
+        description:
+          type: string
+        comments_counter:
+          type: integer
+        after_wake_up_time:
+          type: integer
+          description: TimeInterval in seconds
+        serving_size:
+          type: string
+        name:
+          type: string
+        likes_count:
+          type: integer
+        liked:
+          type: boolean
+        cover_image:
+          type: string
+        changed:
+          type: boolean
+        user_day_recipe_id:
+          type: integer
+        isMarked:
+          type: boolean
+        day:
+          $ref: '#/components/schemas/MealPlanDay'
+      required:
+        - id
     MealCategoty:
       title: MealCategoty
       type: object
       properties:
         id:
+          type: integer
+        name:
           type: string
     Ingredient:
       title: Ingredient
@@ -970,5 +1435,126 @@ components:
           type: number
         meal:
           $ref: '#/components/schemas/Meal'
+      required:
+        - id
+    ShoppingList:
+      title: ShoppingList
+      type: object
+      properties:
+        week_num:
+          type: integer
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ingredient'
+    Message:
+      title: Message
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          description: 'date in format "MM/dd/yyyy HH:mm:ss"'
+        body:
+          type: string
+        read:
+          type: boolean
+        image_url:
+          type: string
+        author:
+          $ref: '#/components/schemas/MessageAuthor'
+        chat:
+          $ref: '#/components/schemas/Chat'
+      required:
+        - id
+    Chat:
+      title: Chat
+      type: object
+      properties:
+        id:
+          type: integer
+        coach_id:
+          type: integer
+        is_read:
+          type: boolean
+        message:
+          type: string
+          description: last message
+        last_message_author_id:
+          type: integer
+        message_created_at:
+          type: string
+          description: "date in format 'MM/dd/yyyy HH:mm:ss'"
+      required:
+        - id
+        - coach_id
+        - is_read
+    MessageAuthor:
+      title: MessageAuthor
+      type: object
+      properties:
+        id:
+          type: integer
+        is_coach:
+          type: boolean
+        first_name:
+          type: string
+        last_name:
+          type: string
+        avatar:
+          type: string
+          description: image url
+      required:
+        - id
+        - is_coach
+    Notification:
+      title: Notification
+      type: object
+      properties:
+        id:
+          type: integer
+        message:
+          type: string
+        notification_type:
+          type: string
+        created_at:
+          type: string
+      required:
+        - id
+    LeaderboardItem:
+      title: LeaderboardItem
+      type: object
+      properties:
+        id:
+          type: integer
+        percent:
+          type: number
+        place:
+          type: integer
+        user:
+          $ref: ''
+      required:
+        - id
+        - percent
+        - place
+    LeaderboardUser:
+      title: LeaderboardUser
+      type: object
+      properties:
+        id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        avatar:
+          type: string
+        coach:
+          $ref: '#/components/schemas/Coach'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeaderboardItem'
       required:
         - id
