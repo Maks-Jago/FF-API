@@ -1120,6 +1120,28 @@ paths:
           required: true
       description: ''
     parameters: []
+  /achievements:
+    get:
+      summary: Get achievements list
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: string
+      operationId: get-achievements
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
 components:
   schemas:
     User:
@@ -1558,3 +1580,25 @@ components:
             $ref: '#/components/schemas/LeaderboardItem'
       required:
         - id
+    Achievement:
+      title: Achievement
+      type: object
+      properties:
+        id:
+          type: integer
+        achievement_type:
+          type: string
+        created_at:
+          type: string
+          description: 'date in format "MM/dd/yyyy HH:mm:ss"'
+        description:
+          type: string
+        image_url:
+          type: string
+        seen:
+          type: boolean
+        title:
+          type: string
+      required:
+        - id
+        - achievement_type
