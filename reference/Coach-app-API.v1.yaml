@@ -525,7 +525,7 @@ paths:
           description: bearer access_token
   /feed_notifications:
     get:
-      summary: Your GET endpoint
+      summary: Get notifications list
       tags: []
       responses:
         '200':
@@ -581,7 +581,7 @@ paths:
           description: bearer access_token
   /image_mass_messages:
     post:
-      summary: Your GET endpoint
+      summary: Post mass message image
       operationId: get-image_mass_messages
       responses:
         '200':
@@ -616,6 +616,7 @@ paths:
                   description: "Should be a lot of 'message[users_ids][]' key/value pairs. Ask Max about detail =)"
                   items:
                     type: integer
+      description: ''
 components:
   schemas:
     Coach:
