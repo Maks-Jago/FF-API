@@ -1,0 +1,718 @@
+openapi: 3.0.0
+info:
+  title: Coach-app-API
+  version: '1.0'
+servers:
+  - url: 'https://www.foodfuels.com/api/coach'
+paths:
+  /sign_in:
+    post:
+      summary: ''
+      operationId: post-sign_in
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/Coach'
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_id:
+                  type: string
+                  description: client id
+                client_secret:
+                  type: string
+                  description: client secret key
+                email:
+                  type: string
+                  description: user email
+                password:
+                  type: string
+                  description: SHA256 encrypted string
+              required:
+                - client_id
+                - client_secret
+                - email
+                - password
+            examples: {}
+  /me:
+    get:
+      summary: Get coach profile
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coach'
+      operationId: get-me
+      parameters:
+        - schema:
+            type: string
+          in: header
+          description: bearer access_token
+          required: true
+          name: Authorization
+    post:
+      summary: Update coach info
+      operationId: post-me
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coach'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                'user[email]':
+                  type: string
+                'user[phone_number]':
+                  type: string
+                'coach[about]':
+                  type: string
+                'coach[welcome_message]':
+                  type: string
+                'user[password]':
+                  type: string
+                  description: 'new password, sha256 encrypted string'
+                'user[current_password]':
+                  type: string
+                  description: 'current password, sha256 encrypted string'
+              required:
+                - 'user[email]'
+                - 'user[phone_number]'
+                - 'coach[about]'
+                - 'coach[welcome_message]'
+  /reset_password:
+    post:
+      summary: ''
+      operationId: post-reset_password
+      responses:
+        '200':
+          description: OK
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+              required:
+                - email
+  /chat_rooms:
+    get:
+      summary: Get list of chats
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: './User-app-API.v1.yaml#/components/schemas/Chat'
+      operationId: get-chat_rooms
+      parameters:
+        - schema:
+            type: string
+          in: header
+          description: bearer access_token
+          required: true
+          name: Authorization
+  '/chat_rooms/{chatId}/messages':
+    parameters:
+      - schema:
+          type: integer
+        name: chatId
+        in: path
+        required: true
+    get:
+      summary: Get messages by chat id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: './User-app-API.v1.yaml#/components/schemas/Message'
+                  pagination:
+                    type: object
+                    description: "can be nil if query params contains 'q[name_cont]'"
+                    properties:
+                      current_page:
+                        type: integer
+                      total_pages:
+                        type: integer
+                required:
+                  - items
+      operationId: get-chat_rooms-chatId-messages
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: page
+          description: pagination page number
+  /my_team:
+    get:
+      summary: Get coach team list
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: './User-app-API.v1.yaml#/components/schemas/User'
+                  pagination:
+                    type: object
+                    description: "can be nil if query params contains 'q[name_cont]'"
+                    properties:
+                      current_page:
+                        type: integer
+                      total_pages:
+                        type: integer
+      operationId: get-my_team
+      description: ''
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+        - schema:
+            type: string
+            enum:
+              - lost
+              - gained
+              - no_entries
+              - suspended
+          in: query
+          name: weight
+        - schema:
+            type: string
+          in: query
+          name: 'q[first_name_or_last_name_cont]'
+      requestBody:
+        description: ''
+  '/my_team/users/{userId}':
+    parameters:
+      - schema:
+          type: integer
+        name: userId
+        in: path
+        required: true
+    get:
+      summary: Get my team user info by id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './User-app-API.v1.yaml#/components/schemas/User'
+      operationId: get-my_team-users-userId
+      description: ''
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  '/users/{userId}/meal_plan':
+    parameters:
+      - schema:
+          type: string
+        name: userId
+        in: path
+        required: true
+    get:
+      summary: Get user meal plan
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './User-app-API.v1.yaml#/components/schemas/UserMealPlan'
+      operationId: get-users-userId-meal_plan
+      description: ''
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  '/users/{userId}/meal_plan_days':
+    parameters:
+      - schema:
+          type: string
+        name: userId
+        in: path
+        required: true
+    get:
+      summary: Get user meal plan days
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: './User-app-API.v1.yaml#/components/schemas/MealPlanDay'
+      operationId: get-users-userId-meal_plan_days
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  '/users/{userId}/start_meal_plan':
+    parameters:
+      - schema:
+          type: string
+        name: userId
+        in: path
+        required: true
+    post:
+      summary: Set user meal plan start date
+      operationId: post-users-userId-start_meal_plan
+      responses:
+        '200':
+          description: OK
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                set_start_day:
+                  type: string
+                  description: 'date in format "MM/dd/yyyy"'
+              required:
+                - set_start_day
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      description: ''
+  /meal_plan/update_start_day:
+    get:
+      summary: Edit user meal plan start date
+      tags: []
+      responses:
+        '200':
+          description: OK
+      operationId: get-meal_plan-update_start_day
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                set_start_day:
+                  type: string
+                  description: 'date in format "MM/dd/yyyy"'
+              required:
+                - user_id
+                - set_start_day
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  '/my_team/users/{userId}/statistic':
+    parameters:
+      - schema:
+          type: string
+        name: userId
+        in: path
+        required: true
+    get:
+      summary: Get user statistic
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Statistic'
+      operationId: get-my_team-users-userId-statistic
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  '/weights/{weightId}/edit':
+    parameters:
+      - schema:
+          type: integer
+        name: weightId
+        in: path
+        required: true
+        description: ''
+    post:
+      summary: Edit weight by id
+      operationId: post-weights-weightId-edit
+      responses:
+        '200':
+          description: OK
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                'weight[value]':
+                  type: number
+                'weight[followed_plan]':
+                  type: boolean
+              required:
+                - 'weight[value]'
+                - 'weight[followed_plan]'
+        description: ''
+  /earnings:
+    get:
+      summary: Get my earnings
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  coach:
+                    $ref: '#/components/schemas/Coach'
+      operationId: get-earnings
+      parameters:
+        - schema:
+            type: string
+          in: header
+          required: true
+          name: Authorization
+          description: bearer access_token
+  /earnings/team_members:
+    get:
+      summary: Get earnings team
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    $ref: '#/components/schemas/EarningsUser'
+      operationId: get-earnings-team_members
+      parameters:
+        - schema:
+            type: string
+          in: header
+          required: true
+          name: Authorization
+          description: bearer access_token
+        - schema:
+            type: integer
+          in: query
+          name: page
+          required: true
+          description: pagination loading page number
+        - schema:
+            type: string
+            enum:
+              - last_month
+              - current_month
+          in: query
+          name: 'q[period]'
+          required: true
+  '/feed_notifications/{notification_id}':
+    parameters:
+      - schema:
+          type: string
+        name: notification_id
+        in: path
+        required: true
+    delete:
+      summary: Delete notification by id
+      operationId: delete-feed_notifications-notification_id
+      responses:
+        '200':
+          description: OK
+      description: ''
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  /feed_notifications:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './User-app-API.v1.yaml#/components/schemas/Notification'
+      operationId: get-feed_notifications
+      description: ''
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+  /mass_messages:
+    post:
+      summary: Send mass message
+      operationId: post-mass_messages
+      responses:
+        '200':
+          description: OK
+      description: ''
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                weight:
+                  type: string
+                  enum:
+                    - lost
+                    - gained
+                    - no_entries
+                    - suspended
+                'message[image]': {}
+                'message[text]':
+                  type: string
+              required:
+                - weight
+        description: ''
+      parameters:
+        - schema:
+            type: string
+          in: header
+          required: true
+          name: Authorization
+          description: bearer access_token
+  /image_mass_messages:
+    post:
+      summary: Your GET endpoint
+      operationId: get-image_mass_messages
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  new_messages_ids:
+                    type: array
+                    items:
+                      type: integer
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: bearer access_token
+      tags: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                'message[image]':
+                  description: 'Multipart image uploading, key "message[image]", mimeType: "image/jpeg", fileName: "image/jpeg"'
+                'message[users_ids][]':
+                  type: array
+                  description: "Should be a lot of 'message[users_ids][]' key/value pairs. Ask Max about detail =)"
+                  items:
+                    type: integer
+components:
+  schemas:
+    Coach:
+      title: Coach
+      type: object
+      properties:
+        id:
+          type: number
+        coach_level:
+          type: number
+        intensity:
+          type: number
+        about:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        welcome_message:
+          type: string
+        tag_line:
+          type: string
+        super_coach:
+          type: boolean
+        avatar:
+          type: string
+        current_month_earn:
+          type: number
+        current_month_team_members:
+          type: integer
+        last_month_earn:
+          type: number
+        last_month_members:
+          type: integer
+        reasigned_members_this_month:
+          type: integer
+        total_earn:
+          type:
+            - string
+            - number
+      required:
+        - id
+    Statistic:
+      title: Statistic
+      type: object
+      properties:
+        id:
+          type: integer
+        count_of_days_with_weight:
+          type: integer
+        current_month_lost:
+          type: number
+        current_week_lost:
+          type: number
+        go_weight:
+          type: number
+        perfect_days:
+          type: integer
+        steps:
+          type: integer
+        totalWeightLost:
+          type: number
+        water:
+          type: number
+        weights:
+          type: array
+          items:
+            $ref: './User-app-API.v1.yaml#/components/schemas/UserWeight'
+      required:
+        - id
+    EarningsUser:
+      title: EarningsUser
+      type: object
+      properties:
+        id:
+          type: integer
+        last_sign_in_at:
+          type: string
+          description: 'date in format "MM/dd/yyyy"'
+        expiration_day:
+          type: string
+          description: 'date in format "MM/dd/yyyy"'
+        amount:
+          type: number
+        payment_date:
+          type: string
+          description: 'date in format "MM/dd/yyyy"'
+        first_name:
+          type: string
+        date_of_payment:
+          type: string
+          description: 'date in format "MM/dd/yyyy"'
+        avatar:
+          type: string
+        membership_days_count:
+          type: integer
+        last_name:
+          type: string
+      required:
+        - id
